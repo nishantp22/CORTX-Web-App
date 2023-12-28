@@ -1,0 +1,75 @@
+.logo{
+    width: 65px;
+    object-fit:contain;
+  }
+.logoText {
+  width:120px;
+  object-fit:contain
+}
+.iconButtons{
+  display: flex;
+}
+.logoDiv{
+  display:flex;
+  gap:8px
+}
+.navBarIcon{
+  padding:10px;
+  color:black
+}
+.controls{
+  display:flex;
+  gap:20px;
+  align-items: center;
+  /* height:60px */
+  /* margin-bottom:-40px */
+}
+.buttons{
+  display: flex;
+  gap: 10px;
+  align-items : center 
+}
+.uvTimeControls{
+  display: flex;
+  justify-content:space-between
+}
+.uvTimeControlsInner{
+  display: flex;
+  gap: 10px 
+}
+.userDiv{
+  display: flex;
+  justify-content: space-between
+}
+.chartLabels{
+  display:flex;
+  flex-direction:column;
+  row-gap:35px;
+  margin-top:12px
+}
+.lineDiv{
+  height: 100px
+}
+.lineChart{
+  width:100%
+}
+.Mui-selected{
+  color:#5B74B7 !important
+}
+.Mui-focused .MuiOutlinedInput-notchedOutline{
+  border-color:#5B74B7 !important; 
+  color:#5B74B7 !important 
+}
+label.Mui-focused{
+  color:#5B74B7 !important 
+}
+.record{
+  width:30px;
+  object-fit:contain;
+  /* margin:auto */
+}
+.user{
+  display: flex;
+  width: 750px;
+  justify-content: right;
+}
