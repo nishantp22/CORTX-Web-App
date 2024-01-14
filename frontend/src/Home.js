@@ -1,65 +1,251 @@
-import './styles/Home.css';
-import eeg from "./assets/eeg.png"
 import * as React from 'react';
-import logo from './assets/logo.png';
-import logoTextOnly from './assets/logoTextOnly.png';
-import Button from '@mui/material/Button';
+import { styled, createTheme, ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import Box from '@mui/material/Box';
+import MuiAppBar from '@mui/material/AppBar';
+import Toolbar from '@mui/material/Toolbar';
+import IconButton from '@mui/material/IconButton';
+import AccountCircle from '@mui/icons-material/AccountCircle';
+import Container from '@mui/material/Container';
+import Grid from '@mui/material/Grid';
+import Paper from '@mui/material/Paper';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faBattery } from '@fortawesome/free-solid-svg-icons'
+import { faCircleQuestion } from '@fortawesome/free-regular-svg-icons'
+import MenuItem from '@mui/material/MenuItem';
+import Menu from '@mui/material/Menu';
+import HomeTabs from './HomeTabs';
+import './styles/Analyse.css';
 import Helmet from "react-helmet";
-import { Link } from "react-router-dom";
-import { ThemeProvider } from '@mui/material/styles';
-import { useNavigate } from 'react-router-dom';
-import { motion } from "framer-motion";
-import { defaultTheme } from './MiscStyles';
+import { motion } from "framer-motion"
+import { useState } from 'react';
+import InputLabel from '@mui/material/InputLabel';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
+import Instructions from './Instructions';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import { SideNavbar } from './SideNavbar';
+import List from '@mui/material/List';
+import MuiDrawer from '@mui/material/Drawer';
+import MenuIcon from '@mui/icons-material/Menu';
+import Typography from '@mui/material/Typography';
+
+const drawerWidth = 240;
+
+const AppBar = styled(MuiAppBar, {
+
+  shouldForwardProp: (prop) => prop !== 'open',
+})(({ theme, open }) => ({
+  zIndex: theme.zIndex.drawer + 1,
+  transition: theme.transitions.create(['width', 'margin'], {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.leavingScreen,
+  }),
+  ...(open && {
+    marginLeft: drawerWidth,
+    width: `calc(100% - ${drawerWidth}px)`,
+    transition: theme.transitions.create(['width', 'margin'], {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+  }),
+}));
+
+const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
+  ({ theme, open }) => ({
+    '& .MuiDrawer-paper': {
+      position: 'relative',
+      whiteSpace: 'nowrap',
+      width: drawerWidth,
+      transition: theme.transitions.create('width', {
+        easing: theme.transitions.easing.sharp,
+        duration: theme.transitions.duration.enteringScreen,
+      }),
+      boxSizing: 'border-box',
+      ...(!open && {
+        overflowX: 'hidden',
+        transition: theme.transitions.create('width', {
+          easing: theme.transitions.easing.sharp,
+          duration: theme.transitions.duration.leavingScreen,
+        }),
+        width: theme.spacing(7),
+        [theme.breakpoints.up('sm')]: {
+          width: theme.spacing(9),
+        },
+      }),
+    },
+  }),
+);
+
+const defaultTheme = createTheme({
+  typography: {
+    fontFamily: "'Quicksand', sans-serif",
+    button: {
+      textTransform: "none"
+    }
+  }
+});
+
+export default function Dashboard() {
 
 
-export default function Home() {
+  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const isMenuOpen = Boolean(anchorEl);
+  const menuId = 'primary-search-account-menu';
 
-    const variantsRight = {
-        hidden: { opacity: 0, x: '100%' },
-        visible: { opacity: 1, x: 0 },
-    };
-    const variantsLeft = {
-        hidden: { opacity: 0, x: '-100%' },
-        visible: { opacity: 1, x: 0 },
-    };
+  const handleMobileMenuClose = () => {
+    setMobileMoreAnchorEl(null);
+  };
+  const handleProfileMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
 
-    const navigate = useNavigate();
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+    handleMobileMenuClose();
+  };
 
-    return (
-        <ThemeProvider theme={defaultTheme}>
-            <Helmet>
-                <title>Home | CORTX</title>
-            </Helmet>
-            <div >
-                <div className="appBar">
-                    <div className='LogoDivHome'>
-                        <Link to='/'>
-                            <div className="logoDiv">
-                                <img className="logoHome" src={logo} alt="logo"></img>
-                                <img className="logoTextHome" src={logoTextOnly} alt="logoText"></img>
-                            </div>
-                        </Link>
-                    </div>
-                    <div className='homeNav'>
-                        <Link className='linkNav' to='/'><b>Home</b></Link>
-                        <Link className='linkNav' to='/About'><b>About</b></Link>
-                        <Link className='linkNav' to='/Health'><b>Health</b></Link>
-                        <Link className='linkNav' to='/Contact'><b>Contact</b></Link>
-                    </div>
-                </div>
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }} className="homeContent">
-                    <motion.h1 initial='hidden' animate='visible' variants={variantsRight} transition={{ stiffness: 50, duration: 1.5 }}
-                        className='homeHeading'>Elevating Experiences, Unleashing Potential</motion.h1>
-                    <motion.img initial='hidden' animate='visible' variants={variantsLeft} transition={{ stiffness: 50, duration: 1.5 }} style={{ width: '400px' }} alt='eegDevice' src={eeg}></motion.img>
-                    <motion.div initial='hidden' animate='visible' variants={variantsRight} transition={{ stiffness: 50, duration: 1.5 }} className='homeText'>
-                        <p className="homeTextP">In the quiet corners of the cosmos, where stars whisper ancient secrets, a cosmic dance unfolds. Celestial bodies pirouette in the vast expanse, choreographing a symphony of light and shadow. Nebulas weave tapestries of color, while galaxies twirl in the cosmic ballet. Each shimmering point of light tells a story, a narrative written in the language of the universe.</p>
-                        <div className='homeButtons'>
-                            <Button sx={{ maxWidth: '200px', minWidth: '200px', borderRadius: 12.5, fontSize: '18px' }} className='about' variant="contained" size='large' color='cortx'>Get Device</Button>
-                            <Button sx={{ maxWidth: '200px', minWidth: '200px', borderRadius: 12.5, fontSize: '18px' }} className='about' variant="contained" size='large' color='cortx' onClick={() => { navigate('/Analyse') }}>Connect Device</Button>
-                        </div>
-                    </motion.div>
-                </motion.div>
-            </div>
-        </ThemeProvider>
-    )
+  const [user, setUser] = useState('');
+
+  const handleChangeUser = (event) => {
+    setUser(event.target.value);
+  };
+
+
+  const [instructionOpen, setInstructionOpen] = React.useState(true);
+  const handleInstructionOpen = () => setInstructionOpen(true);
+  const handleInstructionClose = () => setInstructionOpen(false);
+
+
+  const renderMenu = (
+    <Menu
+      anchorEl={anchorEl}
+      anchorOrigin={{
+        vertical: 'top',
+        horizontal: 'right',
+      }}
+      id={menuId}
+      keepMounted
+      transformOrigin={{
+        vertical: 'top',
+        horizontal: 'right',
+      }}
+      open={isMenuOpen}
+      onClose={handleMenuClose}
+    >
+      <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
+      <MenuItem onClick={handleMenuClose}>My Account</MenuItem>
+    </Menu>
+  );
+
+  const [open, setOpen] = React.useState(true);
+  const toggleDrawer = () => {
+    setOpen(!open);
+  };
+
+  return (
+    <ThemeProvider theme={defaultTheme}>
+      <Helmet>
+        <title>Home | CORTX</title>
+      </Helmet>
+      <div>
+        <Instructions open={instructionOpen} handleClose={handleInstructionClose}></Instructions>
+      </div>
+      <Box sx={{ display: 'flex' }}>
+        <CssBaseline />
+        <AppBar sx={{ backgroundColor: 'rgb(235, 235, 235)' }} position="absolute" open={open}>
+          <Toolbar
+            sx={{
+              pr: '24px',
+            }}
+          >
+            <IconButton
+              edge="start"
+              color="inherit"
+              aria-label="open drawer"
+              onClick={toggleDrawer}
+              sx={{
+                marginRight: '36px',
+                ...(open && { display: 'none' }),
+              }}
+            >
+              <MenuIcon sx={{ color: 'black' }} />
+            </IconButton>
+            <Typography
+              component="h1"
+              variant="h6"
+              color="black"
+              noWrap
+              sx={{ flexGrow: 1 }}
+            >
+            </Typography>
+            <div className="iconButtons">
+            <IconButton color="inherit" onClick={handleInstructionOpen}>
+              <FontAwesomeIcon className="navBarIcon" icon={faCircleQuestion} />
+            </IconButton>
+            <IconButton color="inherit">
+              <FontAwesomeIcon className="navBarIcon" icon={faBattery} />
+            </IconButton>
+            <MenuItem onClick={handleProfileMenuOpen}>
+        <IconButton
+          size="large"
+          aria-label="account of current user"
+          aria-controls="primary-search-account-menu"
+          aria-haspopup="true"
+          color="inherit"
+          >
+          <AccountCircle sx={{color:'black', fontSize:'40px'}} />
+        </IconButton>
+      </MenuItem>
+          </div>
+          </Toolbar>
+        </AppBar>
+        <Drawer variant="permanent" open={open}>
+          <Toolbar
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'flex-end',
+              px: [1],
+            }}
+          >
+            <IconButton onClick={toggleDrawer}>
+              <ChevronLeftIcon />
+            </IconButton>
+          </Toolbar>
+          <List component="nav">
+            {SideNavbar}
+          </List>
+        </Drawer>
+        <Box
+          component="main"
+          sx={{
+            flexGrow: 1,
+            height: '100vh',
+            overflow: 'auto',
+          }}
+        >
+          <Toolbar />
+          <Container sx={{ mt: 4, mb: 4 }}>
+            <Grid container spacing={3}>
+              {/* Chart */}
+              <Grid item xs={2000} md={200} lg={2000}>
+                <Paper
+                  sx={{
+                    p: 2,
+                    display: 'flex',
+                    flexDirection: 'column',
+                  }}
+                >
+                  <HomeTabs></HomeTabs>
+                </Paper>
+              </Grid>
+            </Grid>
+          </Container>
+        </Box>
+      {renderMenu} 
+      </Box>
+    </ThemeProvider>
+  );
 }

@@ -1,9 +1,9 @@
 .logo{
-    width: 65px;
+    width: 43.3px;
     object-fit:contain;
   }
 .logoText {
-  width:120px;
+  width:80px;
   object-fit:contain
 }
 .iconButtons{
@@ -11,7 +11,7 @@
 }
 .logoDiv{
   display:flex;
-  gap:8px
+  gap:6px
 }
 .navBarIcon{
   padding:10px;
@@ -72,4 +72,8 @@ label.Mui-focused{
   display: flex;
   width: 750px;
   justify-content: right;
+}
+.sideNavLink{
+  text-decoration: none;
+  color:black
 }

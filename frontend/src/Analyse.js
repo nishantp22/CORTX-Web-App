@@ -11,26 +11,27 @@ import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBattery } from '@fortawesome/free-solid-svg-icons'
-import { faCircleQuestion } from '@fortawesome/free-regular-svg-icons'
 import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
 import AnalyseTabs from './AnalyseTabs';
-import logo from './assets/logo.png';
-import logoTextOnly from './assets/logoTextOnly.png';
 import './styles/Analyse.css';
-import { Link } from "react-router-dom";
 import Helmet from "react-helmet";
 import { motion } from "framer-motion"
 import { useState } from 'react';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
-import Instructions from './Instructions';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import { SideNavbar } from './SideNavbar';
+import List from '@mui/material/List';
+import MuiDrawer from '@mui/material/Drawer';
+import MenuIcon from '@mui/icons-material/Menu';
+import Typography from '@mui/material/Typography';
 
 const drawerWidth = 240;
 
 const AppBar = styled(MuiAppBar, {
-  
+
   shouldForwardProp: (prop) => prop !== 'open',
 })(({ theme, open }) => ({
   zIndex: theme.zIndex.drawer + 1,
@@ -48,16 +49,60 @@ const AppBar = styled(MuiAppBar, {
   }),
 }));
 
+const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
+  ({ theme, open }) => ({
+    '& .MuiDrawer-paper': {
+      position: 'relative',
+      whiteSpace: 'nowrap',
+      width: drawerWidth,
+      transition: theme.transitions.create('width', {
+        easing: theme.transitions.easing.sharp,
+        duration: theme.transitions.duration.enteringScreen,
+      }),
+      boxSizing: 'border-box',
+      ...(!open && {
+        overflowX: 'hidden',
+        transition: theme.transitions.create('width', {
+          easing: theme.transitions.easing.sharp,
+          duration: theme.transitions.duration.leavingScreen,
+        }),
+        width: theme.spacing(7),
+        [theme.breakpoints.up('sm')]: {
+          width: theme.spacing(9),
+        },
+      }),
+    },
+  }),
+);
+
 const defaultTheme = createTheme({
   typography: {
-    fontFamily:"'Quicksand', sans-serif",
-    button:{ 
+    fontFamily: "'Quicksand', sans-serif",
+    button: {
       textTransform: "none"
     }
-  } 
+  }
 });
 
 export default function Dashboard() {
+
+
+  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const isMenuOpen = Boolean(anchorEl);
+  const menuId = 'primary-search-account-menu';
+
+  const handleMobileMenuClose = () => {
+    setMobileMoreAnchorEl(null);
+  };
+  const handleProfileMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+    handleMobileMenuClose();
+  };
 
   const [user, setUser] = useState('');
 
@@ -66,97 +111,72 @@ export default function Dashboard() {
   };
 
 
+
+
+
+  const renderMenu = (
+    <Menu
+      anchorEl={anchorEl}
+      anchorOrigin={{
+        vertical: 'top',
+        horizontal: 'right',
+      }}
+      id={menuId}
+      keepMounted
+      transformOrigin={{
+        vertical: 'top',
+        horizontal: 'right',
+      }}
+      open={isMenuOpen}
+      onClose={handleMenuClose}
+    >
+      <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
+      <MenuItem onClick={handleMenuClose}>My Account</MenuItem>
+    </Menu>
+  );
+
   const [open, setOpen] = React.useState(true);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
-  
-  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const isMenuOpen = Boolean(anchorEl);
-  const menuId = 'primary-search-account-menu';
-  
-  const handleMobileMenuClose = () => {
-    setMobileMoreAnchorEl(null);
-  }; 
-  const handleProfileMenuOpen = (event) => {
-    setAnchorEl(event.currentTarget);
+  const toggleDrawer = () => {
+    setOpen(!open);
   };
-  
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-    handleMobileMenuClose();
-  };
-const renderMenu = (
-  <Menu
-    anchorEl={anchorEl}
-    anchorOrigin={{
-      vertical: 'top',
-      horizontal: 'right',
-    }}
-    id={menuId}
-    keepMounted
-    transformOrigin={{
-      vertical: 'top',
-      horizontal: 'right',
-    }}
-    open={isMenuOpen}
-    onClose={handleMenuClose}
-  >
-    <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-    <MenuItem onClick={handleMenuClose}>My Account</MenuItem>
-  </Menu>
-);
 
   return (
     <ThemeProvider theme={defaultTheme}>
       <Helmet>
-        <title>Analyse | CORTX</title>
+        <title>Home | CORTX</title>
       </Helmet>
       <div>
-      <Instructions open={open} handleClose={handleClose}></Instructions>
-    </div>
-      <motion.Box initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }} sx={{ display: 'flex' }}>
+      </div>
+      <Box sx={{ display: 'flex' }}>
         <CssBaseline />
-        <AppBar sx={{backgroundColor:'rgb(235, 235, 235)'}}position="absolute">
+        <AppBar sx={{ backgroundColor: 'rgb(235, 235, 235)' }} position="absolute" open={open}>
           <Toolbar
             sx={{
-              pr: '24px', 
-              display:'flex',
-              justifyContent:'space-between'
+              pr: '24px',
             }}
           >
-              <div style={{width:'10%'}} className='LogoDiv'>
-                <Link to='/'>
-                  <div className="logoDiv">
-                    <img className="logo" src={logo} alt="logo"></img>
-                    <img className="logoText" src={logoTextOnly} alt="logoText"></img>
-                  </div>
-                </Link>
-                </div>
-                <div className="user">
-
-                  <Box sx={{ minWidth: 250, maxWidth: 250,mr:3}}>
-              <FormControl fullWidth>
-                <InputLabel id="demo-simple-select-label">User</InputLabel>
-                <Select
-                  labelId="demo-simple-select-label"
-                  id="demo-simple-select"
-                  value={user}
-                  label="User"
-                  onChange={handleChangeUser}
-                  >
-                  <MenuItem value={'User 1'}>User 1</MenuItem>
-                  <MenuItem value={'User 2'}>User 2</MenuItem>
-                  <MenuItem value={'User 3'}>User 3</MenuItem>
-                </Select>
-              </FormControl>
-            </Box>
-                </div>
-
-            <div className="iconButtons">
-            <IconButton color="inherit" onClick={handleOpen}>
-              <FontAwesomeIcon className="navBarIcon" icon={faCircleQuestion} />
+            <IconButton
+              edge="start"
+              color="inherit"
+              aria-label="open drawer"
+              onClick={toggleDrawer}
+              sx={{
+                marginRight: '36px',
+                ...(open && { display: 'none' }),
+              }}
+            >
+              <MenuIcon sx={{ color: 'black' }} />
             </IconButton>
+            <Typography
+              component="h1"
+              variant="h6"
+              color="black"
+              noWrap
+              sx={{ flexGrow: 1 }}
+            >
+            </Typography>
+            <div className="iconButtons">
+
             <IconButton color="inherit">
               <FontAwesomeIcon className="navBarIcon" icon={faBattery} />
             </IconButton>
@@ -174,7 +194,23 @@ const renderMenu = (
           </div>
           </Toolbar>
         </AppBar>
-
+        <Drawer variant="permanent" open={open}>
+          <Toolbar
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'flex-end',
+              px: [1],
+            }}
+          >
+            <IconButton onClick={toggleDrawer}>
+              <ChevronLeftIcon />
+            </IconButton>
+          </Toolbar>
+          <List component="nav">
+            {SideNavbar}
+          </List>
+        </Drawer>
         <Box
           component="main"
           sx={{
@@ -201,8 +237,8 @@ const renderMenu = (
             </Grid>
           </Container>
         </Box>
-      {renderMenu}
-      </motion.Box>
+      {renderMenu} 
+      </Box>
     </ThemeProvider>
   );
 }
