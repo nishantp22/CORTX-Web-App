@@ -112,8 +112,12 @@ export default function Compact() {
     }
 
 
-    const variants = {
+    const variantsRight = {
         hidden: { opacity: 0, x: '100%' },
+        visible: { opacity: 1, x: 0 },
+    };
+    const variantsLeft = {
+        hidden: { opacity: 0, x: '-100%' },
         visible: { opacity: 1, x: 0 },
     };
 
@@ -142,9 +146,9 @@ export default function Compact() {
                     </div>
                 </div>
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }} className="homeContent">
-                    <motion.h1 initial='hidden' animate='visible' variants={variants} transition={{ stiffness: 50, duration: 0.8 }}
+                    <motion.h1 initial='hidden' animate='visible' variants={variantsRight} transition={{ stiffness: 50, duration: 0.8 }}
                         className='homeHeading'>Contact Us</motion.h1>
-                    <div style={{width:'500px'}}>
+                    <motion.div initial='hidden' animate='visible' variants={variantsLeft} transition={{ stiffness: 50, duration: 0.8 }} style={{width:'500px'}}>
                         <h2 style={{textAlign:'center',color:'#5B74B7'}}>Leave us a message!</h2>
                         <Box
                             component="form"
@@ -159,8 +163,8 @@ export default function Compact() {
                                 <Button disabled={submitting==='Submitting...'} onClick={sendQuery}fullWidth sx={{mt:2, borderRadius: 12.5, fontSize: '18px' }} className='about' variant="contained" size='large' color='cortx'>{submitting}</Button>
                             </div>
                         </Box>
-                    </div>
-                    <div style={{display:'flex', alignItems:'center'}} >
+                    </motion.div>
+                    <motion.div initial='hidden' animate='visible' variants={variantsRight} transition={{ stiffness: 50, duration: 0.8 }} style={{display:'flex', alignItems:'center'}} >
                         <div style={{display:'flex',flexDirection:'column',gap:'20px'}}>
                             <div>
                                 <p className="emailLabel"><b>Email</b></p>
@@ -175,7 +179,7 @@ export default function Compact() {
                                 <StyledButton className='buttonControl' sx={{ height: '30px',maxWidth:'30px',minWidth:'30px',fontSize:'15px', }} size="small" variant="outlined" onClick={()=>{window.open('https://www.linkedin.com/in/nishant-pandey-6b7196247/')}}><FontAwesomeIcon style={{color:'#5B74B7'}} icon={faLinkedin}/></StyledButton>
                             </div>
                         </div>
-                    </div>
+                    </motion.div>
                 </motion.div>
             </div>
         </ThemeProvider>

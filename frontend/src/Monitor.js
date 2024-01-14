@@ -47,7 +47,7 @@ const options = {
 export default function LineChart({state}) {
 
   return (
-    <div style={{display:'flex'}}>
+    <div id="monitorDiv" style={{display:'flex'}}>
       <div className="chartLabels">
         <div style={{display:'flex'}}>
         <FontAwesomeIcon style={{margin:'auto',paddingRight:'10px'}}icon={faSignal} />

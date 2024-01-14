@@ -11,7 +11,7 @@ import Select from '@mui/material/Select';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPenToSquare} from '@fortawesome/free-solid-svg-icons';
+import { faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 import { faBookmark } from '@fortawesome/free-regular-svg-icons';
 import InputAdornment from '@mui/material/InputAdornment';
 import IconButton from '@mui/material/IconButton';
@@ -20,8 +20,9 @@ import styled from '@emotion/styled';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import record from './assets/record.png'
-
-
+import BandActivity from './BandActivity';
+import RecordPopup from './RecordPopup'
+import Papa from 'papaparse';
 
 const StyledButton = styled(Button)(({ }) => ({
   color: 'black',
@@ -71,7 +72,45 @@ function a11yProps(index) {
 }
 
 export default function AnalyseTabs() {
-  
+  const [fileName, setFileName] = useState('recording');
+  const [duration,setDuration]=useState(30);
+
+  function handleFileName(event) {
+    setFileName(event.target.value);
+  }
+  function handleDurationSet(newDuration){
+    setDuration(newDuration);
+  }
+
+  const [started, setStarted] = useState(false)
+  const [storedData, setStoredData] = useState([]);
+  const startedText = started ? 'Stop' : 'Record'
+  function handleStart() {
+    setStarted(true)
+  }
+  function handleRecordButton() {
+    if (started) {
+      setStarted(false)
+      setElapsedTime(0)
+      handleDownload();
+    }
+    else {
+      handleRecordPopupOpen();
+    }
+  }
+  const [elapsedTime, setElapsedTime] = useState(0);
+  function formatElapsedTime(seconds) {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    const formattedMinutes = minutes < 10 ? `0${minutes}` : `${minutes}`;
+    const formattedSeconds = remainingSeconds < 10 ? `0${remainingSeconds}` : `${remainingSeconds}`;
+    return `${formattedMinutes}:${formattedSeconds}`;
+  }
+
+  const [recordPopupOpen, setRecordPopupOpen] = useState(false);
+  const handleRecordPopupOpen = () => setRecordPopupOpen(true);
+  const handleRecordPopupClose = () => setRecordPopupOpen(false);
+
   const initialState = {
     fp1: {
       labels: Array.from({ length: 1000 }, () => '0'),
@@ -134,7 +173,7 @@ export default function AnalyseTabs() {
           borderWidth: 0.5,
           data: new Array(1000).fill(0),
           borderColor: '#f39c12',
-          backgroundColor: '#f39c12',        
+          backgroundColor: '#f39c12',
         },
       ],
     },
@@ -179,34 +218,59 @@ export default function AnalyseTabs() {
     },
   };
 
+  const barData = {
+    labels: ['Delta', 'Theta', 'Alpha', 'Beta', 'Gamma', 'Sigma'],
+    datasets: [
+      {
+        label: 'Data Set 1',
+        backgroundColor: 'rgba(113,188,195,1)',
+        borderColor: 'rgba(113,188,195,1)',
+        borderWidth: 1,
+        // hoverBackgroundColor: 'rgba(113,188,195,0.3)',
+        // hoverBorderColor: 'rgba(113,188,195,1)',
+        data: [65, 59, 80, 81, 56, 22],
+      },
+    ],
+  };
+
   const mapping = { 0: 'fp1', 1: 'fp2', 2: 't3', 3: 't4', 4: 'o1', 5: 'o2', 6: 'p3', 7: 'p4' }
 
   const [state, setState] = useState(initialState);
-  const [dataPoints,setDataPoints] = useState(1280);
+  const [dataPoints, setDataPoints] = useState(1280);
 
 
   const fetchDataAndDisplay = async () => {
     try {
-      const response = await axios.get('http://127.0.0.1:8000/data');
+      const response = await axios.get('http://127.0.0.1:5000/stream');
       const data_r = response.data;
       const numRows = 8;
       const numCols = 64;
-
       const dataArray = new Array(numRows);
-
       for (let i = 0; i < numRows; i++) {
         dataArray[i] = new Array(numCols);
       }
-
 
       for (let i = 0; i < 64; i++) {
         for (let j = 0; j < 8; j++) {
           dataArray[j][i] = (data_r[i].channel_data[j])
         }
       }
+      if (started) {
+        setStoredData(prevData => {
+          const constantRows = dataArray.length;
+          if (prevData.length === 0) {
+            prevData = Array.from({ length: constantRows }, () => []);
+          }
+          const updatedData = prevData.slice(0, constantRows).map((row, index) => [
+            ...row,
+            ...dataArray[index],
+          ]);
+          return updatedData;
+        });
+      }
 
       const updateState = (key) => {
-        const maxDataPoints=dataPoints
+        const maxDataPoints = dataPoints
         const newLabels = [...state[mapping[key]].labels, ...dataArray[key].map(String)].slice(-maxDataPoints);
         const newDataPoints = [...state[mapping[key]].datasets[0].data, ...dataArray[key]].slice(-maxDataPoints);
 
@@ -233,7 +297,28 @@ export default function AnalyseTabs() {
       updateState(5);
       updateState(6);
       updateState(7);
+      if(elapsedTime>duration+1){
+        setStarted(false)
+        setElapsedTime(0)
+        handleDownload();
+    }
+
     } catch (error) {
+    }
+  };
+
+  const handleDownload = () => {
+    if (storedData.length > 0) {
+      const csvData = Papa.unparse(storedData);
+      const blob = new Blob([csvData], { type: 'text/csv' });
+      const link = document.createElement('a');
+      link.href = window.URL.createObjectURL(blob);
+      link.download = fileName + '.csv';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setStoredData([]);
+      setFileName('recording')
     }
   };
 
@@ -241,28 +326,6 @@ export default function AnalyseTabs() {
     const intervalId = setInterval(fetchDataAndDisplay, 250);
     return () => clearInterval(intervalId);
   }, [state]);
-
-
-  
-  const [started, setStarted] = useState(false)
-  const startedText = started ? 'Finish' : 'Record'
-  function handleStart() {
-    if(started){
-      setStarted(false)
-      setElapsedTime(0)
-    }
-    else setStarted(true)
-  }
-  const [elapsedTime, setElapsedTime] = useState(0);
-  function formatElapsedTime(seconds) {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    const formattedMinutes = minutes < 10 ? `0${minutes}` : `${minutes}`;
-    const formattedSeconds = remainingSeconds < 10 ? `0${remainingSeconds}` : `${remainingSeconds}`;
-    return `${formattedMinutes}:${formattedSeconds}`;
-  }
-  
-
 
   useEffect(() => {
     let interval;
@@ -286,6 +349,11 @@ export default function AnalyseTabs() {
   };
 
   const [time, setTime] = useState('');
+  const [channel, setChannel] = useState('All Channels');
+
+  const handleChangeChannel = (event) => {
+    setChannel(event.target.value);
+  }
 
   const handleChangeTime = (event) => {
     setTime(event.target.value);
@@ -298,57 +366,60 @@ export default function AnalyseTabs() {
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
+
   return (
     <Box sx={{ width: '100%' }}>
+      <div>
+        <RecordPopup handleDurationSet={handleDurationSet} handleFileName={handleFileName} handleStart={handleStart} recordPopupOpen={recordPopupOpen} handleRecordPopupClose={handleRecordPopupClose}></RecordPopup>
+      </div>
       <Box sx={{ borderBottom: 1, borderColor: 'divider', display: 'flex', justifyContent: 'space-between' }}>
         <Tabs sx={{ mb: 1 }} value={value} onChange={handleChange} TabIndicatorProps={{ style: { backgroundColor: "#5B74B7" } }} aria-label="basic tabs example">
           <Tab label="Monitor" {...a11yProps(0)} />
           <Tab label="Band Activity" {...a11yProps(1)} />
         </Tabs>
         <div className="controls">
-            <h3 style={{margin:'0'}}>{formatElapsedTime(elapsedTime)}</h3>
-            {started?<img className="record" src={record} alt="recording" />:null}
-            <StyledButton className='buttonControl' sx={{ height: '40px' }} onClick={handleStart} size="small" variant="outlined">{startedText}</StyledButton>
+          <h3 style={{ margin: '0' }}>{started && elapsedTime>0&& formatElapsedTime(elapsedTime-1)}</h3>
+          {started ? <img className="record" src={record} alt="recording" /> : null}
+          <StyledButton className='buttonControl' sx={{ height: '40px' }} onClick={handleRecordButton} size="small" variant="outlined">{startedText}</StyledButton>
         </div>
       </Box>
       <CustomTabPanel value={value} index={0}>
         <div className="userDiv">
-            <div className="uvTimeControls">
-              <div className="uvTimeControlsInner">
-                <FormControl sx={{ minWidth: 100, mb: 2 }} size="small">
-                  <InputLabel id="demo-simple-select-label">uV</InputLabel>
-                  <Select
-                    labelId="demo-simple-select-label"
-                    id="demo-simple-select"
-                    value={uV}
-                    label="uV"
-                    onChange={handleChangeUV}>
-                    <MenuItem value={10}>10uV</MenuItem>
-                    <MenuItem value={20}>20uV</MenuItem>
-                    <MenuItem value={30}>30uV</MenuItem>
-                  </Select>
-                </FormControl>
-                <FormControl sx={{ minWidth: 100, mb: 2 }} size="small">
-                  <InputLabel id="demo-simple-select-label">time</InputLabel>
-                  <Select
-                    labelId="demo-simple-select-label"
-                    id="demo-simple-select"
-                    value={time}
-                    label="time"
-                    onChange={handleChangeTime}>
-                    <MenuItem value={512}>2 Secs</MenuItem>
-                    <MenuItem value={1280}>5 Secs</MenuItem>
-                    <MenuItem value={2560}>10 Secs</MenuItem>
-                  </Select>
-                </FormControl>
-              </div>
+          <div className="uvTimeControls">
+            <div className="uvTimeControlsInner">
+              <FormControl sx={{ minWidth: 100, mb: 2 }} size="small">
+                <InputLabel id="demo-simple-select-label">uV</InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={uV}
+                  label="uV"
+                  onChange={handleChangeUV}>
+                  <MenuItem value={10}>10uV</MenuItem>
+                  <MenuItem value={20}>20uV</MenuItem>
+                  <MenuItem value={30}>30uV</MenuItem>
+                </Select>
+              </FormControl>
+              <FormControl sx={{ minWidth: 100, mb: 2 }} size="small">
+                <InputLabel id="demo-simple-select-label">Time</InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={time}
+                  label="time"
+                  onChange={handleChangeTime}>
+                  <MenuItem value={512}>2 Secs</MenuItem>
+                  <MenuItem value={1280}>5 Secs</MenuItem>
+                  <MenuItem value={2560}>10 Secs</MenuItem>
+                </Select>
+              </FormControl>
             </div>
-          <div className='buttons'>
-
+          </div>
+          {/* <div className='buttons'>
             <TextField sx={{ p: 0 }}
               label="Add a Comment"
               variant="outlined"
-              InputLabelProps={{ style: { fontSize: 15 } }} // font size of input label
+              InputLabelProps={{ style: { fontSize: 15 } }}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
@@ -361,11 +432,31 @@ export default function AnalyseTabs() {
               }}
             />
             <StyledButton sx={{ height: '40px', color: 'black', borderColor: 'black' }} size="small" variant="outlined"><FontAwesomeIcon icon={faBookmark} /> &nbsp; Mark</StyledButton>
-          </div>
+          </div> */}
         </div>
         <LineChart state={state}></LineChart>
       </CustomTabPanel>
       <CustomTabPanel value={value} index={1}>
+        <FormControl sx={{ minWidth: 200, mb: 5 }} size="small">
+          <InputLabel id="demo-simple-select-label">Channel</InputLabel>
+          <Select
+            labelId="demo-simple-select-label"
+            id="demo-simple-select"
+            value={channel}
+            label="Channel"
+            onChange={handleChangeChannel}>
+            <MenuItem value={'All Channels'}>All Channels</MenuItem>
+            <MenuItem value={'FP1'}>FP1</MenuItem>
+            <MenuItem value={'FP2'}>FP2</MenuItem>
+            <MenuItem value={'T3'}>T3</MenuItem>
+            <MenuItem value={'T4'}>T4</MenuItem>
+            <MenuItem value={'O1'}>O1</MenuItem>
+            <MenuItem value={'O2'}>O2</MenuItem>
+            <MenuItem value={'P3'}>P3</MenuItem>
+            <MenuItem value={'P4'}>P4</MenuItem>
+          </Select>
+        </FormControl>
+        <BandActivity state={state} barData={barData}></BandActivity>
       </CustomTabPanel>
     </Box>
   );

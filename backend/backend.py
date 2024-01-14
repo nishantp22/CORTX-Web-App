@@ -17,9 +17,7 @@ def send_mail():
         country = data.get('country', 'India')
         subject = data.get('subject', 'No Subject')
         body = data.get('body', '<blank>')
-
         mail_message = Message(subject, sender=email, recipients=['nishant.pandey3910@gmail.com'])
-        # mail_message.body=body
         mail_message.body = 'Message from CORTX website'+'\n'+'Name : '+first_name+' '+last_name+'\n'+ 'Country : '+country +'\n'+'Email : '+email+'\n'+'Subject : '+subject+'\n'+'Body : '+body
         mail.send(mail_message)
         return "Mail has been sent"
