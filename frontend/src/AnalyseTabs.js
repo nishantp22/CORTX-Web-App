@@ -4,25 +4,15 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
 import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPenToSquare } from '@fortawesome/free-solid-svg-icons';
-import { faBookmark } from '@fortawesome/free-regular-svg-icons';
-import InputAdornment from '@mui/material/InputAdornment';
-import IconButton from '@mui/material/IconButton';
-import LineChart from './Monitor';
+import LineChart from './AnalyseMonitor';
 import styled from '@emotion/styled';
 import { useState, useEffect } from 'react';
-import axios from 'axios';
-import record from './assets/record.png'
 import BandActivity from './BandActivity';
-import RecordPopup from './RecordPopup'
 import Papa from 'papaparse';
+
+
+const VisuallyHiddenInput = styled('input')`clip: rect(0 0 0 0); clip-path: inset(50%); height: 1px; overflow: hidden; position: absolute; bottom: 0; left: 0; white-space: nowrap; width: 1px;`;
 
 const StyledButton = styled(Button)(({ }) => ({
   color: 'black',
@@ -38,6 +28,7 @@ const StyledButton = styled(Button)(({ }) => ({
 
 
 function CustomTabPanel(props) {
+
 
   const { children, value, index, ...other } = props;
 
@@ -72,15 +63,17 @@ function a11yProps(index) {
 }
 
 export default function HomeTabs() {
+  
+  const mapping = { 0: 'fp1', 1: 'fp2', 2: 't3', 3: 't4', 4: 'o1', 5: 'o2', 6: 'p3', 7: 'p4' }
 
   const initialState = {
     fp1: {
-      labels: Array.from({ length: 1000 }, () => '0'),
+      labels: [],
       datasets: [
         {
           label: 'FP1',
           pointRadius: 0,
-          data: new Array(1000).fill(0),
+          data: [],
           borderWidth: 0.5,
           borderColor: '#3498db',
           backgroundColor: '#3498db',
@@ -88,38 +81,38 @@ export default function HomeTabs() {
       ],
     },
     fp2: {
-      labels: Array.from({ length: 1000 }, () => '0'),
+      labels: [],
       datasets: [
         {
           label: 'FP2',
           pointRadius: 0,
           borderWidth: 0.5,
-          data: new Array(1000).fill(0),
+          data: [],
           borderColor: '#e74c3c',
           backgroundColor: '#e74c3c',
         },
       ],
     },
     t3: {
-      labels: Array.from({ length: 1000 }, () => '0'),
+      labels: [],
       datasets: [
         {
           label: ' T3',
           pointRadius: 0,
           borderWidth: 0.5,
-          data: new Array(1000).fill(0),
+          data: [],
           borderColor: '#2c3e50',
           backgroundColor: '#2c3e50',
         },
       ],
     },
     t4: {
-      labels: Array.from({ length: 1000 }, () => '0'),
+      labels: [],
       datasets: [
         {
           label: ' T4',
           pointRadius: 0,
-          data: new Array(1000).fill(0),
+          data: [],
           borderWidth: 0.5,
           borderColor: '#2ecc71',
           backgroundColor: '#2ecc71',
@@ -127,25 +120,25 @@ export default function HomeTabs() {
       ],
     },
     o1: {
-      labels: Array.from({ length: 1000 }, () => '0'),
+      labels: [],
       datasets: [
         {
           label: ' O1',
           pointRadius: 0,
           borderWidth: 0.5,
-          data: new Array(1000).fill(0),
+          data: [],
           borderColor: '#f39c12',
           backgroundColor: '#f39c12',
         },
       ],
     },
     o2: {
-      labels: Array.from({ length: 1000 }, () => '0'),
+      labels: [],
       datasets: [
         {
           label: ' O2',
           pointRadius: 0,
-          data: new Array(1000).fill(0),
+          data: [],
           borderColor: '#9b59b6',
           borderWidth: 0.5,
           backgroundColor: '#9b59b6',
@@ -153,26 +146,26 @@ export default function HomeTabs() {
       ],
     },
     p3: {
-      labels: Array.from({ length: 1000 }, () => '0'),
+      labels: [],
       datasets: [
         {
           label: ' P3 ',
           pointRadius: 0,
           borderWidth: 0.5,
-          data: new Array(1000).fill(0),
+          data: [],
           borderColor: '#1abc9c',
           backgroundColor: '#1abc9c',
         },
       ],
     },
     p4: {
-      labels: Array.from({ length: 1000 }, () => '0'),
+      labels: [],
       datasets: [
         {
           label: 'P4 ',
           pointRadius: 0,
           borderWidth: 0.5,
-          data: new Array(1000).fill(0),
+          data: [],
           borderColor: '#e67e22',
           backgroundColor: '#e67e22',
         },
@@ -195,25 +188,52 @@ export default function HomeTabs() {
     ],
   };
 
-  const mapping = { 0: 'fp1', 1: 'fp2', 2: 't3', 3: 't4', 4: 'o1', 5: 'o2', 6: 'p3', 7: 'p4' }
 
   const [state, setState] = useState(initialState);
 
-  const [value, setValue] = useState(0);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [csvData, setCsvData] = useState([]);
+  
+  const handleFileUpload = (event) => {
+    const file = event.target.files[0];
+    setSelectedFile(file);
+    console.log(file);
+    Papa.parse(file, {
+      complete: (result) => {
+        setCsvData(result.data);
+      },
+      dynamicTyping: true, 
+    });
+  };
 
+  function processFile(){
+    for(let i=0;i<csvData.length;i++){
+      for(let j=0;j<csvData[0].length;j++){
+        initialState[mapping[i]].labels.push('0');
+        initialState[mapping[i]].datasets[0].data.push(csvData[i][j]);
+      }
+    }
+    setState(initialState);
+  }
+
+
+
+  const [value, setValue] = useState(0);
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
 
   return (
     <Box sx={{ width: '100%' }}>
-      <Box sx={{ borderBottom: 1, borderColor: 'divider', display: 'flex', justifyContent: 'space-between' }}>
+      <Box sx={{ borderBottom: 1, borderColor: 'divider', display: 'flex', justifyContent: 'left', gap:'50px' }}>
         <Tabs sx={{ mb: 1 }} value={value} onChange={handleChange} TabIndicatorProps={{ style: { backgroundColor: "#5B74B7" } }} aria-label="basic tabs example">
           <Tab label="Monitor" {...a11yProps(0)} />
           <Tab label="Band Activity" {...a11yProps(1)} />
         </Tabs>
         <div className="controls">
-          <StyledButton className='buttonControl' sx={{ height: '40px' }} size="small" variant="outlined">Upload a Recorded File</StyledButton>
+          <StyledButton className='buttonControl' sx={{ height: '40px' }} size="small" variant="outlined" onChange={handleFileUpload} component="label" role={undefined}>Upload a Recorded File <VisuallyHiddenInput type="file" accept=".csv"/></StyledButton>
+          {selectedFile&&<StyledButton className='buttonControl' sx={{ height: '40px' }} size="small" variant="outlined" onClick={processFile} component="label" role={undefined}>Show Recorded Data</StyledButton>}
+          {selectedFile&&<p>Selected file : {selectedFile.name}</p>}
         </div>
       </Box>
       

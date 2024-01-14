@@ -50,6 +50,10 @@
 .lineDiv{
   height: 100px
 }
+.lineDivAnalyse{
+  height: 100px;
+}
+
 .lineChart{
   width:100%
 }
@@ -76,4 +80,20 @@ label.Mui-focused{
 .sideNavLink{
   text-decoration: none;
   color:black
+}
+
+.chartWrapper {
+  position: relative;
+}
+
+.chartWrapper > canvas {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+}
+
+.chartAreaWrapper {
+  /* width: 15000px; */
+  /* overflow-x: scroll; */
 }
