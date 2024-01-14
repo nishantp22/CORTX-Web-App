@@ -1,15 +1,15 @@
-import './styles/Home.css';
-import eeg from "./assets/eeg.png"
+import '../styles/Home.css';
+import eeg from "../assets/eeg.png"
 import * as React from 'react';
-import logo from './assets/logo.png';
-import logoTextOnly from './assets/logoTextOnly.png';
+import logo from '../assets/logo.png';
+import logoTextOnly from '../assets/logoTextOnly.png';
 import Button from '@mui/material/Button';
 import Helmet from "react-helmet";
 import { Link } from "react-router-dom";
 import { ThemeProvider } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
 import { motion } from "framer-motion";
-import { defaultTheme } from './MiscStyles';
+import { defaultTheme } from '../styles/MiscStyles';
 
 
 export default function Landing() {

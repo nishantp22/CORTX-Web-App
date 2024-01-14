@@ -1,4 +1,4 @@
-import './styles/App.css';
+import '../styles/App.css';
 import Home from './Home.js'
 import Landing from './Landing.js'
 import Contact from './Contact.js'

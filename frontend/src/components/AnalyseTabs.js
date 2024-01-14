@@ -10,6 +10,10 @@ import styled from '@emotion/styled';
 import { useState, useEffect } from 'react';
 import BandActivity from './BandActivity';
 import Papa from 'papaparse';
+import Alert from '@mui/material/Alert';
+import CheckIcon from '@mui/icons-material/Check';
+import { motion } from "framer-motion";
+
 
 
 const VisuallyHiddenInput = styled('input')`clip: rect(0 0 0 0); clip-path: inset(50%); height: 1px; overflow: hidden; position: absolute; bottom: 0; left: 0; white-space: nowrap; width: 1px;`;
@@ -63,6 +67,7 @@ function a11yProps(index) {
 }
 
 export default function HomeTabs() {
+  const [err,setErr]=useState(0)
   
   const mapping = { 0: 'fp1', 1: 'fp2', 2: 't3', 3: 't4', 4: 'o1', 5: 'o2', 6: 'p3', 7: 'p4' }
 
@@ -197,7 +202,6 @@ export default function HomeTabs() {
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
     setSelectedFile(file);
-    console.log(file);
     Papa.parse(file, {
       complete: (result) => {
         setCsvData(result.data);
@@ -207,13 +211,29 @@ export default function HomeTabs() {
   };
 
   function processFile(){
-    for(let i=0;i<csvData.length;i++){
-      for(let j=0;j<csvData[0].length;j++){
-        initialState[mapping[i]].labels.push('0');
-        initialState[mapping[i]].datasets[0].data.push(csvData[i][j]);
+    if (selectedFile) {
+      try {
+        const worker = new Worker(new URL('../worker.js', import.meta.url));
+
+        worker.onmessage = (e) => {
+          const { error, initialState } = e.data;
+          if (error) {
+            setErr(-1) 
+            worker.terminate();
+          } else {
+            setState(initialState);
+            setErr(1);
+          }
+          worker.terminate();
+        };
+        worker.postMessage({ csvData: csvData, initialState:initialState, mapping:mapping });
+        
+      } catch (error) {
+        setErr(-1);
       }
+    } else {
+      alert('Please select a recorded CSV file first.');
     }
-    setState(initialState);
   }
 
 
@@ -224,7 +244,19 @@ export default function HomeTabs() {
   };
 
   return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }}>
     <Box sx={{ width: '100%' }}>
+          {err==1?<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }}>
+                    <Alert initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }} sx={{mb:2}} icon={<CheckIcon fontSize="inherit" />} severity="success">
+                        File Processed successfully.
+                    </Alert>
+                  </motion.div>
+          :err===-1?<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }}>
+                      <Alert sx={{mb:2}} severity="error">
+                        Failed to process the file.
+                      </Alert> 
+                  </motion.div>
+          :null}
       <Box sx={{ borderBottom: 1, borderColor: 'divider', display: 'flex', justifyContent: 'left', gap:'50px' }}>
         <Tabs sx={{ mb: 1 }} value={value} onChange={handleChange} TabIndicatorProps={{ style: { backgroundColor: "#5B74B7" } }} aria-label="basic tabs example">
           <Tab label="Monitor" {...a11yProps(0)} />
@@ -244,5 +276,6 @@ export default function HomeTabs() {
         <BandActivity state={state} barData={barData}></BandActivity>
       </CustomTabPanel>
     </Box>
+    </motion.div>
   );
 }

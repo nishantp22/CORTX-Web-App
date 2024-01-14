@@ -4,10 +4,10 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faHome, faChartLine, faArrowLeft } from '@fortawesome/free-solid-svg-icons'
-import logo from './assets/logo.png';
-import logoTextOnly from './assets/logoTextOnly.png';
+import logo from '../assets/logo.png';
+import logoTextOnly from '../assets/logoTextOnly.png';
 import { Link } from "react-router-dom";
-import "./styles/Analyse.css"
+import "../styles/Analyse.css"
 
 export const SideNavbar = (
     <div>

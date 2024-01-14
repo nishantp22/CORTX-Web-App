@@ -9,7 +9,7 @@ import MenuItem from '@mui/material/MenuItem';
 import InputLabel from '@mui/material/InputLabel';
 import  Button  from "@mui/material/Button";
 import { ThemeProvider } from '@mui/material/styles';
-import { defaultTheme } from "./MiscStyles";
+import { defaultTheme } from "../styles/MiscStyles";
 
 const style = {
     position: 'absolute',

@@ -19,7 +19,7 @@ import LineChart from './Monitor';
 import styled from '@emotion/styled';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import record from './assets/record.png'
+import record from '../assets/record.png'
 import BandActivity from './BandActivity';
 import RecordPopup from './RecordPopup'
 import Papa from 'papaparse';

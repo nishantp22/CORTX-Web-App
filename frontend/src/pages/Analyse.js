@@ -11,20 +11,18 @@ import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBattery } from '@fortawesome/free-solid-svg-icons'
-import { faCircleQuestion } from '@fortawesome/free-regular-svg-icons'
 import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
-import HomeTabs from './HomeTabs';
-import './styles/Analyse.css';
+import AnalyseTabs from '../components/AnalyseTabs';
+import '../styles/Analyse.css';
 import Helmet from "react-helmet";
 import { motion } from "framer-motion"
 import { useState } from 'react';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
-import Instructions from './Instructions';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import { SideNavbar } from './SideNavbar';
+import { SideNavbar } from '../components/SideNavbar';
 import List from '@mui/material/List';
 import MuiDrawer from '@mui/material/Drawer';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -113,9 +111,7 @@ export default function Dashboard() {
   };
 
 
-  const [instructionOpen, setInstructionOpen] = React.useState(true);
-  const handleInstructionOpen = () => setInstructionOpen(true);
-  const handleInstructionClose = () => setInstructionOpen(false);
+
 
 
   const renderMenu = (
@@ -147,10 +143,9 @@ export default function Dashboard() {
   return (
     <ThemeProvider theme={defaultTheme}>
       <Helmet>
-        <title>Home | CORTX</title>
+        <title>Analyse | CORTX</title>
       </Helmet>
       <div>
-        <Instructions open={instructionOpen} handleClose={handleInstructionClose}></Instructions>
       </div>
       <Box sx={{ display: 'flex' }}>
         <CssBaseline />
@@ -181,9 +176,7 @@ export default function Dashboard() {
             >
             </Typography>
             <div className="iconButtons">
-            <IconButton color="inherit" onClick={handleInstructionOpen}>
-              <FontAwesomeIcon className="navBarIcon" icon={faCircleQuestion} />
-            </IconButton>
+
             <IconButton color="inherit">
               <FontAwesomeIcon className="navBarIcon" icon={faBattery} />
             </IconButton>
@@ -238,7 +231,7 @@ export default function Dashboard() {
                     flexDirection: 'column',
                   }}
                 >
-                  <HomeTabs></HomeTabs>
+                  <AnalyseTabs></AnalyseTabs>
                 </Paper>
               </Grid>
             </Grid>

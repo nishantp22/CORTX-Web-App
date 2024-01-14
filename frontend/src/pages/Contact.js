@@ -1,7 +1,7 @@
-import './styles/Home.css';
+import '../styles/Home.css';
 import * as React from 'react';
-import logo from './assets/logo.png';
-import logoTextOnly from './assets/logoTextOnly.png';
+import logo from '../assets/logo.png';
+import logoTextOnly from '../assets/logoTextOnly.png';
 import Helmet from "react-helmet";
 import { Link } from "react-router-dom";
 import { createTheme, ThemeProvider } from '@mui/material/styles';
