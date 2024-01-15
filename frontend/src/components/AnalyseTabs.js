@@ -36,6 +36,7 @@ function CustomTabPanel(props) {
 
   const { children, value, index, ...other } = props;
 
+
   return (
     <div
       role="tabpanel"
@@ -67,6 +68,7 @@ function a11yProps(index) {
 }
 
 export default function HomeTabs() {
+  const [processing,setProcessing]=useState(0);
   const [err,setErr]=useState(0)
   
   const mapping = { 0: 'fp1', 1: 'fp2', 2: 't3', 3: 't4', 4: 'o1', 5: 'o2', 6: 'p3', 7: 'p4' }
@@ -217,16 +219,19 @@ export default function HomeTabs() {
   function processFile(){
     if (selectedFile) {
       try {
+        setProcessing(1);
         const worker = new Worker(new URL('../worker.js', import.meta.url));
 
         worker.onmessage = (e) => {
           const { error, initialState } = e.data;
           if (error) {
             setErr(-1) 
+            setProcessing(0);
             worker.terminate();
           } else {
             setState(initialState);
             setErr(1);
+            setProcessing(0);
           }
           worker.terminate();
         };
@@ -234,6 +239,7 @@ export default function HomeTabs() {
         
       } catch (error) {
         setErr(-1);
+        setProcessing(0);
       }
     } else {
       alert('Please select a recorded CSV file first.');
@@ -250,25 +256,30 @@ export default function HomeTabs() {
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }} id="analyseTabDiv">
     <Box sx={{ width: '100%' }}>
-          {err==1?<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }} style={{width:'50%'}}>
+          {(!processing)&&err==1?<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }} style={{width:'50%'}}>
                     <Alert initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }} sx={{mb:2}} icon={<CheckIcon fontSize="inherit" />} severity="success">
                         File Processed successfully.
                     </Alert>
                   </motion.div>
-          :err===-1?<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }} style={{width:'50%'}}>
+          :(!processing)&&err===-1?<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }} style={{width:'50%'}}>
                       <Alert sx={{mb:2}} severity="error">
                         Failed to process the file.
                       </Alert> 
                   </motion.div>
           :null}
+          {processing?<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }} style={{width:'50%'}}>
+                      <Alert sx={{mb:2}} severity="info">
+                        Processing, Please Wait.
+                      </Alert> 
+                  </motion.div>:null}
       <Box sx={{ borderBottom: 1, borderColor: 'divider', display: 'flex', justifyContent: 'left', gap:'50px' }}>
         <Tabs sx={{ mb: 1 }} value={value} onChange={handleChange} TabIndicatorProps={{ style: { backgroundColor: "#5B74B7" } }} aria-label="basic tabs example">
           <Tab label="Monitor" {...a11yProps(0)} />
           <Tab label="Band Activity" {...a11yProps(1)} />
         </Tabs>
         <div className="controls">
-          <StyledButton className='buttonControl' sx={{ height: '40px',textAlign:'center' }} size="small" variant="outlined" onChange={handleFileUpload} component="label" role={undefined}>Upload a Recorded File <VisuallyHiddenInput type="file" accept=".csv"/></StyledButton>
-          {selectedFile&&<StyledButton className='buttonControl' sx={{ height: '40px',textAlign:'center' }} size="small" variant="outlined" onClick={processFile} component="label" role={undefined}>Show Recorded Data</StyledButton>}
+          <StyledButton disabled={processing} className='buttonControl' sx={{ height: '40px',textAlign:'center' }} size="small" variant="outlined" onChange={handleFileUpload} component="label" role={undefined}>Upload a Recorded File <VisuallyHiddenInput type="file" accept=".csv"/></StyledButton>
+          {selectedFile&&<StyledButton disabled={processing} className='buttonControl' sx={{ height: '40px',textAlign:'center' }} size="small" variant="outlined" onClick={processFile} component="label" role={undefined}>Show Recorded Data</StyledButton>}
           {selectedFile&&<p>Selected file : {selectedFile.name}</p>}
         </div>
       </Box>
