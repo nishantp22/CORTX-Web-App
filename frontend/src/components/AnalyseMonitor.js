@@ -1,7 +1,6 @@
 import { Line } from 'react-chartjs-2';
 import 'chart.js/auto';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSignal } from '@fortawesome/free-solid-svg-icons';
+
 
 
 const options = {
@@ -46,7 +45,7 @@ const options = {
 export default function LineChart({state}) {
 
   return (
-    <div id="monitorDiv" style={{display:'flex'}}>
+    <div id="monitorDiv" style={{display:'flex',justifyContent:'center'}}>
       <div className="chartLabels">
         <div style={{display:'flex'}}>
         {/* <FontAwesomeIcon style={{margin:'auto',paddingRight:'10px'}}icon={faSignal} /> */}
@@ -81,9 +80,8 @@ export default function LineChart({state}) {
           <h3>&nbsp;P4</h3>
         </div>
       </div>
-      <div className="lineDivAnalyseContainer" style={{width:'100%'}}>
-        <div className="chartWrapper">
-            <div className="chartAreaWrapper" style={{width:state.fp1.datasets[0].data.length*(3/4)}}>
+      <div className="lineDivAnalyseContainer">
+        <div className="chartWrapper"style={{width:state.fp1.datasets[0].data.length*(3/4)}}>
                 <div className="lineDivAnalyse" >
                     <Line data={state.fp1} options={options} />
                 </div>
@@ -109,7 +107,6 @@ export default function LineChart({state}) {
                 <Line data={state.p4} options={options} />
                 </div>
             </div>
-        </div>
       </div>
     </div>
   )

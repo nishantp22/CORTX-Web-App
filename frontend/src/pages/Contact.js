@@ -139,7 +139,7 @@ export default function Compact() {
                         </Link>
                     </div>
                     <div className='homeNav'>
-                        <Link className='linkNav' to='/'><b>Home</b></Link>
+                        <Link className='linkNav' to='/'><b>Product</b></Link>
                         <Link className='linkNav' to='/About'><b>About</b></Link>
                         <Link className='linkNav' to='/Health'><b>Health</b></Link>
                         <Link className='linkNav' to='/Contact'><b>Contact</b></Link>

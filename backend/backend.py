@@ -1,5 +1,5 @@
 from config import app, mail
-from flask_mail import Message  # Use Message from flask_mail, not from mailbox
+from flask_mail import Message  
 from flask import request
 from flask_cors import CORS
 

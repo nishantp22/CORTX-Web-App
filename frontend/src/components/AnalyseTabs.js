@@ -200,16 +200,20 @@ export default function HomeTabs() {
   const [csvData, setCsvData] = useState([]);
   
   const handleFileUpload = (event) => {
-    const file = event.target.files[0];
-    setSelectedFile(file);
-    Papa.parse(file, {
-      complete: (result) => {
-        setCsvData(result.data);
-      },
-      dynamicTyping: true, 
-    });
-  };
+    const file = event.target.files&&event.target.files[0];
+    if(file){
 
+      setSelectedFile(file);
+      Papa.parse(file, {
+        complete: (result) => {
+          console.log(result.data)
+          setCsvData(result.data);
+        },
+        dynamicTyping: true, 
+      });
+  };
+}
+  
   function processFile(){
     if (selectedFile) {
       try {
@@ -244,14 +248,14 @@ export default function HomeTabs() {
   };
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }}>
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }} id="analyseTabDiv">
     <Box sx={{ width: '100%' }}>
-          {err==1?<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }}>
+          {err==1?<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }} style={{width:'50%'}}>
                     <Alert initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }} sx={{mb:2}} icon={<CheckIcon fontSize="inherit" />} severity="success">
                         File Processed successfully.
                     </Alert>
                   </motion.div>
-          :err===-1?<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }}>
+          :err===-1?<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }} style={{width:'50%'}}>
                       <Alert sx={{mb:2}} severity="error">
                         Failed to process the file.
                       </Alert> 
@@ -263,8 +267,8 @@ export default function HomeTabs() {
           <Tab label="Band Activity" {...a11yProps(1)} />
         </Tabs>
         <div className="controls">
-          <StyledButton className='buttonControl' sx={{ height: '40px' }} size="small" variant="outlined" onChange={handleFileUpload} component="label" role={undefined}>Upload a Recorded File <VisuallyHiddenInput type="file" accept=".csv"/></StyledButton>
-          {selectedFile&&<StyledButton className='buttonControl' sx={{ height: '40px' }} size="small" variant="outlined" onClick={processFile} component="label" role={undefined}>Show Recorded Data</StyledButton>}
+          <StyledButton className='buttonControl' sx={{ height: '40px',textAlign:'center' }} size="small" variant="outlined" onChange={handleFileUpload} component="label" role={undefined}>Upload a Recorded File <VisuallyHiddenInput type="file" accept=".csv"/></StyledButton>
+          {selectedFile&&<StyledButton className='buttonControl' sx={{ height: '40px',textAlign:'center' }} size="small" variant="outlined" onClick={processFile} component="label" role={undefined}>Show Recorded Data</StyledButton>}
           {selectedFile&&<p>Selected file : {selectedFile.name}</p>}
         </div>
       </Box>
